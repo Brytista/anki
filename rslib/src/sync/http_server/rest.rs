@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+'''// Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::collections::HashMap;
@@ -17,12 +17,9 @@ use serde_json::json;
 use crate::{
     card::CardId,
     collection::Collection,
-    decks::DeckId,
     error::{AnkiError, OrInvalid},
-    i18n::I18n,
     notes::Note,
     prelude::*,
-    sync::error::HttpError,
     sync::http_server::{user::User, SimpleServer},
 };
 
@@ -74,12 +71,6 @@ where
 {
     fn from(err: E) -> Self {
         Self(err.into())
-    }
-}
-
-impl From<HttpError> for RestError {
-    fn from(err: HttpError) -> Self {
-        Self(AnkiError::invalid_input(err.to_string()))
     }
 }
 
@@ -159,3 +150,4 @@ async fn get_card(
         }))
     })
 }
+''
