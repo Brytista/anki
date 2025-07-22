@@ -4,8 +4,9 @@
 mod handlers;
 mod logging;
 mod media_manager;
+pub mod rest;
 mod routes;
-mod user;
+pub mod user;
 
 use std::collections::HashMap;
 use std::future::Future;
@@ -44,6 +45,7 @@ use crate::sync::http_server::media_manager::ServerMediaManager;
 use crate::sync::http_server::routes::collection_sync_router;
 use crate::sync::http_server::routes::health_check_handler;
 use crate::sync::http_server::routes::media_sync_router;
+use crate::sync::http_server::rest::rest_router;
 use crate::sync::http_server::user::User;
 use crate::sync::login::HostKeyRequest;
 use crate::sync::login::HostKeyResponse;
@@ -52,12 +54,12 @@ use crate::sync::request::MAXIMUM_SYNC_PAYLOAD_BYTES;
 use crate::sync::response::SyncResponse;
 
 pub struct SimpleServer {
-    state: Mutex<SimpleServerInner>,
+    pub state: Mutex<SimpleServerInner>,
 }
 
 pub struct SimpleServerInner {
     /// hkey->user
-    users: HashMap<String, User>,
+    pub users: HashMap<String, User>,
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -247,6 +249,7 @@ impl SimpleServer {
             Router::new()
                 .nest("/sync", collection_sync_router())
                 .nest("/msync", media_sync_router())
+                .nest("/api/v1", rest_router())
                 .route("/health", get(health_check_handler))
                 .with_state(server)
                 .layer(DefaultBodyLimit::max(*MAXIMUM_SYNC_PAYLOAD_BYTES))
