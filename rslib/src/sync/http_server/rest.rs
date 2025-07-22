@@ -1,4 +1,4 @@
-'''// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::collections::HashMap;
@@ -17,7 +17,7 @@ use serde_json::json;
 use crate::{
     card::CardId,
     collection::Collection,
-    error::{AnkiError, OrInvalid},
+    error::{AnkiError, InvalidInputError},
     notes::Note,
     prelude::*,
     sync::http_server::{user::User, SimpleServer},
@@ -102,7 +102,13 @@ async fn add_card(
         let deck_id = col.get_or_create_normal_deck(&payload.deck_name)?.id;
         let notetype = col
             .get_notetype_by_name(&payload.notetype_name)?
-            .ok_or_else(|| AnkiError::invalid_input(format!("Notetype not found: {}", payload.notetype_name)))?;
+            .ok_or_else(|| AnkiError::InvalidInput {
+                source: InvalidInputError {
+                    message: format!("Notetype not found: {}", payload.notetype_name),
+                    source: None,
+                    backtrace: None,
+                },
+            })?;
 
         let mut note = Note::new(&notetype);
         note.tags = payload.tags;
@@ -150,4 +156,3 @@ async fn get_card(
         }))
     })
 }
-''
