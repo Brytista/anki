@@ -20,7 +20,7 @@ use crate::{
     error::{AnkiError, InvalidInputError},
     notes::Note,
     prelude::*,
-    sync::http_server::{user::User, SimpleServer},
+    sync::http_server::{ SimpleServer},
 };
 
 // Payloads for the API

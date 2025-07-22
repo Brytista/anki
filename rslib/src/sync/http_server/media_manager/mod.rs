@@ -16,7 +16,7 @@ use crate::sync::media::changes::MediaChange;
 use crate::sync::media::database::server::ServerMediaDatabase;
 use crate::sync::media::sanity::MediaSanityCheckResponse;
 
-pub(crate) struct ServerMediaManager {
+pub struct ServerMediaManager {
     pub media_folder: PathBuf,
     pub db: ServerMediaDatabase,
 }
