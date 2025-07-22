@@ -13,7 +13,7 @@ use crate::sync::error::HttpResult;
 use crate::sync::error::OrHttpErr;
 use crate::sync::http_server::media_manager::ServerMediaManager;
 
-pub(in crate::sync) struct User {
+pub struct User {
     pub name: String,
     pub password_hash: String,
     pub col: Option<Collection>,
