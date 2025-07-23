@@ -1,0 +1,264 @@
+
+openapi: 3.0.0
+info:
+  title: Anki REST API
+  version: 0.1.0
+paths:
+  /cards:
+    post:
+      summary: Add a new card
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddCardRequest'
+      responses:
+        '200':
+          description: A list of card IDs that were created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddCardResponse'
+        '400':
+          description: Invalid input provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict, e.g., a resource already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete cards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteCardsRequest'
+      responses:
+        '200':
+          description: Indicates whether the deletion was successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteCardsResponse'
+        '400':
+          description: Invalid input provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /cards/{card_id}:
+    get:
+      summary: Get card information
+      parameters:
+        - name: card_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Detailed information about the card
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardInfoResponse'
+        '404':
+          description: Card not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update a card's content
+      parameters:
+        - name: card_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCardContentRequest'
+      responses:
+        '200':
+          description: Indicates whether the update was successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Invalid input provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Card not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /cards/{card_id}/schedule:
+    put:
+      summary: Update a card's schedule
+      parameters:
+        - name: card_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateScheduleRequest'
+      responses:
+        '200':
+          description: Indicates whether the update was successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Invalid input provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Card not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    AddCardRequest:
+      type: object
+      properties:
+        deckName:
+          type: string
+        notetypeName:
+          type: string
+        fields:
+          type: object
+          additionalProperties:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+    AddCardResponse:
+      type: object
+      properties:
+        card_ids:
+          type: array
+          items:
+            type: integer
+            format: int64
+    DeleteCardsRequest:
+      type: object
+      properties:
+        card_ids:
+          type: array
+          items:
+            type: integer
+            format: int64
+    DeleteCardsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        deleted_count:
+          type: integer
+    CardInfoResponse:
+      type: object
+      properties:
+        card_id:
+          type: integer
+          format: int64
+        deck_id:
+          type: integer
+          format: int64
+        due:
+          type: integer
+        interval:
+          type: integer
+        ease_factor:
+          type: number
+          format: float
+        rendered_front:
+          type: string
+        rendered_back:
+          type: string
+    UpdateCardContentRequest:
+      type: object
+      properties:
+        fields:
+          type: object
+          additionalProperties:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+    UpdateScheduleRequest:
+      type: object
+      properties:
+        due:
+          type: string
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string

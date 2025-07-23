@@ -127,6 +127,49 @@ pub enum AnkiError {
 
 // error helpers
 impl AnkiError {
+        pub fn code(&self) -> &str {
+        match self {
+            AnkiError::InvalidInput { .. } => "invalid_input",
+            AnkiError::TemplateError { .. } => "template_error",
+            AnkiError::CardTypeError { .. } => "card_type_error",
+            AnkiError::FileIoError { .. } => "file_io_error",
+            AnkiError::DbError { .. } => "db_error",
+            AnkiError::NetworkError { .. } => "network_error",
+            AnkiError::SyncError { .. } => "sync_error",
+            AnkiError::JsonError { .. } => "json_error",
+            AnkiError::ProtoError { .. } => "proto_error",
+            AnkiError::ParseNumError => "parse_num_error",
+            AnkiError::Interrupted => "interrupted",
+            AnkiError::CollectionNotOpen => "collection_not_open",
+            AnkiError::CollectionAlreadyOpen => "collection_already_open",
+            AnkiError::NotFound { .. } => "not_found",
+            AnkiError::Deleted => "deleted",
+            AnkiError::Existing => "existing",
+            AnkiError::FilteredDeckError { .. } => "filtered_deck_error",
+            AnkiError::SearchError { .. } => "search_error",
+            AnkiError::InvalidRegex { .. } => "invalid_regex",
+            AnkiError::UndoEmpty => "undo_empty",
+            AnkiError::MultipleNotetypesSelected => "multiple_notetypes_selected",
+            AnkiError::DatabaseCheckRequired => "database_check_required",
+            AnkiError::MediaCheckRequired => "media_check_required",
+            AnkiError::CustomStudyError { .. } => "custom_study_error",
+            AnkiError::ImportError { .. } => "import_error",
+            AnkiError::InvalidId => "invalid_id",
+            #[cfg(windows)]
+            AnkiError::WindowsError { .. } => "windows_error",
+            AnkiError::InvalidMethodIndex => "invalid_method_index",
+            AnkiError::InvalidServiceIndex => "invalid_service_index",
+            AnkiError::FsrsParamsInvalid => "fsrs_params_invalid",
+            AnkiError::FsrsInsufficientData => "fsrs_insufficient_data",
+            AnkiError::FsrsInsufficientReviews { .. } => "fsrs_insufficient_reviews",
+            AnkiError::FsrsUnableToDetermineDesiredRetention => {
+                "fsrs_unable_to_determine_desired_retention"
+            }
+            AnkiError::SchedulerUpgradeRequired => "scheduler_upgrade_required",
+            AnkiError::InvalidCertificateFormat => "invalid_certificate_format",
+        }
+    }
+
     pub fn message(&self, tr: &I18n) -> String {
         match self {
             AnkiError::SyncError { source } => source.message(tr),

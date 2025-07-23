@@ -1,11 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+pub mod error;
 mod handlers;
 mod logging;
 mod media_manager;
 pub mod rest;
 mod routes;
+pub mod rest_routes;
 pub mod user;
 
 use std::collections::HashMap;
@@ -36,22 +38,27 @@ use snafu::Whatever;
 use tokio::net::TcpListener;
 use tracing::Span;
 
-use crate::error;
+
+use crate::prelude::*;
 use crate::media::files::sha1_of_data;
 use crate::sync::error::HttpResult;
 use crate::sync::error::OrHttpErr;
 use crate::sync::http_server::logging::with_logging_layer;
 use crate::sync::http_server::media_manager::ServerMediaManager;
+use crate::sync::http_server::rest::rest_router;
 use crate::sync::http_server::routes::collection_sync_router;
 use crate::sync::http_server::routes::health_check_handler;
 use crate::sync::http_server::routes::media_sync_router;
-use crate::sync::http_server::rest::rest_router;
 use crate::sync::http_server::user::User;
 use crate::sync::login::HostKeyRequest;
 use crate::sync::login::HostKeyResponse;
 use crate::sync::request::SyncRequest;
 use crate::sync::request::MAXIMUM_SYNC_PAYLOAD_BYTES;
 use crate::sync::response::SyncResponse;
+
+pub use self::error::ApiError;
+
+pub type ApiResult<T> = Result<T, ApiError>;
 
 pub struct SimpleServer {
     pub state: Mutex<SimpleServerInner>,
@@ -92,8 +99,10 @@ pub fn default_ip_header() -> ClientIpSource {
     ClientIpSource::ConnectInfo
 }
 
+
+
 impl SimpleServerInner {
-    fn new_from_env(base_folder: &Path) -> error::Result<Self, Whatever> {
+    fn new_from_env(base_folder: &Path) -> Result<Self, Whatever> {
         let mut idx = 1;
         let mut users: HashMap<String, User> = Default::default();
         loop {
@@ -227,7 +236,7 @@ impl SimpleServer {
             .unwrap();
         std::net::TcpStream::connect(format!("{}:{}", config.host, config.port)).is_ok()
     }
-    pub fn new(base_folder: &Path) -> error::Result<Self, Whatever> {
+    pub fn new(base_folder: &Path) -> Result<Self, Whatever> {
         let inner = SimpleServerInner::new_from_env(base_folder)?;
         Ok(SimpleServer {
             state: Mutex::new(inner),
@@ -236,7 +245,7 @@ impl SimpleServer {
 
     pub async fn make_server(
         config: SyncServerConfig,
-    ) -> error::Result<(SocketAddr, ServerFuture), Whatever> {
+    ) -> Result<(SocketAddr, ServerFuture), Whatever> {
         let server = Arc::new(
             SimpleServer::new(&config.base_folder).whatever_context("unable to create server")?,
         );
@@ -269,7 +278,7 @@ impl SimpleServer {
 
     #[snafu::report]
     #[tokio::main]
-    pub async fn run() -> error::Result<(), Whatever> {
+    pub async fn run() -> Result<(), Whatever> {
         let config = envy::prefixed("SYNC_")
             .from_env::<SyncServerConfig>()
             .whatever_context("reading SYNC_* env vars")?;
@@ -279,4 +288,4 @@ impl SimpleServer {
     }
 }
 
-pub type ServerFuture = Pin<Box<dyn Future<Output = error::Result<(), std::io::Error>> + Send>>;
+pub type ServerFuture = Pin<Box<dyn Future<Output = Result<(), std::io::Error>> + Send>>;

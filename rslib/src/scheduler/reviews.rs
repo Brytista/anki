@@ -127,6 +127,12 @@ impl Collection {
         context: Option<StringKey>,
     ) -> Result<OpOutput<()>> {
         let spec = parse_due_date_str(days)?;
+        if cids.is_empty() {
+            return Ok(OpOutput {
+                output: (),
+                changes: Default::default(),
+            });
+        }
         let usn = self.usn()?;
         let today = self.timing_today()?.days_elapsed;
         let next_day_start = self.timing_today()?.next_day_at.0;
@@ -134,7 +140,21 @@ impl Collection {
         let distribution = Uniform::new_inclusive(spec.min, spec.max).unwrap();
         let mut decks_initial_ease: HashMap<DeckId, f32> = HashMap::new();
         self.transact(Op::SetDueDate, |col| {
-            for mut card in col.all_cards_for_ids(cids, false)? {
+            let cards = col.all_cards_for_ids(cids, false)?;
+            if cards.len() != cids.len() {
+                let found_cids: std::collections::HashSet<CardId> =
+                    cards.iter().map(|c| c.id).collect();
+                let missing_cid = cids.iter().find(|cid| !found_cids.contains(cid)).unwrap();
+
+                return Err(AnkiError::NotFound {
+                    source: crate::error::NotFoundError {
+                        type_name: "card".to_string(),
+                        identifier: missing_cid.to_string(),
+                        backtrace: None,
+                    },
+                });
+            }
+            for mut card in cards {
                 let deck_id = card.original_deck_id.or(card.deck_id);
                 let ease_factor = match decks_initial_ease.get(&deck_id) {
                     Some(ease) => *ease,

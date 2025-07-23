@@ -1,5 +1,7 @@
 # Anki®
 
+> **Note for Gemini:** This README is a collaborative workspace. The primary, detailed project documentation for our current work is located in `rslib/docs/gemini/README.md`.
+
 [![Build status](https://badge.buildkite.com/c9edf020a4aec976f9835e54751cc5409d843adbb66d043bd3.svg?branch=main)](https://buildkite.com/ankitects/anki-ci)
 
 This repo contains the source code for the computer version of

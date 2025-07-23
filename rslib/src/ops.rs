@@ -121,6 +121,15 @@ pub struct OpChanges {
     pub changes: StateChanges,
 }
 
+impl Default for OpChanges {
+    fn default() -> Self {
+        Self {
+            op: Op::Custom(String::new()),
+            changes: StateChanges::default(),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct OpOutput<T> {
     pub output: T,
